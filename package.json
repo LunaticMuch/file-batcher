@@ -2,9 +2,10 @@
   "author": "Antti Hilja",
   "description": "Asynchronous bulk edit utility for Front Matter powered Markdown files",
   "license": "ISC",
-  "main": "index.js",
+  "exports": "./index.js",
   "name": "file-batcher",
   "version": "1.0.0",
+  "type":"module",
   "repository": "https://github.com/hilja/file-batcher",
   "homepage": "https://github.com/hilja/file-batcher",
   "keywords": [
@@ -15,8 +16,9 @@
     "write"
   ],
   "scripts": {
-    "test": "jest spec.js --config=jest.config.js",
-    "jest": "jest --config=jest.config.js"
+    "test": "jest spec.js --config=jest.config.cjs",
+    "jest": "jest --config=jest.config.cjs",
+    "prepare": "husky install"
   },
   "dependencies": {
     "delay": "^5.0.0",
@@ -32,13 +34,25 @@
     "@babel/preset-env": "^7.7.6",
     "babel-jest": "^28.1.3",
     "babel-polyfill": "^6.26.0",
+    "eslint": "^8.21.0",
+    "eslint-config-prettier": "^8.5.0",
+    "husky": "^8.0.0",
     "jest": "^28.1.3",
-    "jest-plugin-fs": "^2.9.0"
+    "jest-plugin-fs": "^2.9.0",
+    "lint-staged": "^13.0.3",
+    "prettier": "^2.7.1"
   },
   "eslintConfig": {
     "env": {
       "node": true,
       "jest": true
     }
-  }
+  },
+  "lint-staged": {
+    "**/*.{js,jsx,ts,tsx}": [
+      "npx prettier --write",
+      "npx eslint --fix"
+    ]
+  },
+  "engines": {"node": ">=14.16"}
 }

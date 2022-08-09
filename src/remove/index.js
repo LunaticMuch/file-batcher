@@ -1,4 +1,4 @@
-const trash = require('trash')
+import trash from 'trash';
 
 /**
  * Moves a file to trash.
@@ -7,11 +7,11 @@ const trash = require('trash')
  * @param {Object} options Options passed to `trash`.
  */
 const remove = async (path, options = {}) => {
-  try {
-    await trash(path, options)
-  } catch (error) {
-    throw new Error(error)
-  }
-}
+	try {
+		await trash(path, options);
+	} catch (error) {
+		throw new Error(error);
+	}
+};
 
-module.exports = remove
+export default remove;

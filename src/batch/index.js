@@ -1,15 +1,15 @@
-const fs = require('fs')
-const path = require('path')
-const update = require('immutability-helper')
-import pMap from 'p-map'
-const glob = require('glob')
-const delay = require('delay')
-const getPath = require('../../helpers/get-path')
-const read = require('../read')
-const remove = require('../remove')
-const write = require('../write')
+import { lstatSync, renameSync } from 'fs';
+import { dirname as _dirname, isAbsolute, join } from 'path';
+import update from 'immutability-helper';
+import pMap from 'p-map';
+import { sync } from 'glob';
+import delay from 'delay';
+import getPath from '../../helpers/get-path';
+import read from '../read';
+import remove from '../remove';
+import write from '../write';
 
-const isFile = path => fs.lstatSync(path).isFile()
+const isFile = (path) => lstatSync(path).isFile();
 
 /**
  * Takes a glob patterns or an array of paths and asynchronously iterates it
@@ -21,44 +21,42 @@ const isFile = path => fs.lstatSync(path).isFile()
  * @returns {Promise}
  */
 const batch = async (input, limit = Infinity, onEach) => {
-  if (typeof input === 'undefined') {
-    return undefined
-  }
+	if (typeof input === 'undefined') {
+		return undefined;
+	}
 
-  const files = Array.isArray(input)
-    ? input.map(getPath).filter(isFile)
-    : glob.sync(getPath(input)).filter(isFile)
-  const options = { concurrency: limit }
+	const files = Array.isArray(input)
+		? input.map(getPath).filter(isFile)
+		: sync(getPath(input)).filter(isFile);
+	const options = { concurrency: limit };
 
-  try {
-    return pMap(
-      files,
-      async (file, index) => {
-        const dirname = path.dirname(file)
-        const goods = await read(file)
-        const actions = {
-          update: target => update(goods, target),
-          save: async (data, path = file, options) =>
-            write(path, data, options),
-          remove: async (path = file) => remove(path),
-          rename: (newPath, oldPath = file) => {
-            newPath = path.isAbsolute(newPath)
-              ? newPath
-              : path.join(dirname, newPath)
-            fs.renameSync(getPath(oldPath), newPath)
-          },
-          pMap
-        }
+	try {
+		return pMap(
+			files,
+			async (file, index) => {
+				const dirname = _dirname(file);
+				const goods = await read(file);
+				const actions = {
+					update: (target) => update(goods, target),
+					save: async (data, path = file, options) =>
+						write(path, data, options),
+					remove: async (path = file) => remove(path),
+					rename: (newPath, oldPath = file) => {
+						newPath = isAbsolute(newPath) ? newPath : join(dirname, newPath);
+						renameSync(getPath(oldPath), newPath);
+					},
+					pMap,
+				};
 
-        return typeof onEach === 'function'
-          ? onEach({ actions, files, goods, index, delay })
-          : goods
-      },
-      options
-    )
-  } catch (error) {
-    throw new Error(error)
-  }
-}
+				return typeof onEach === 'function'
+					? onEach({ actions, files, goods, index, delay })
+					: goods;
+			},
+			options
+		);
+	} catch (error) {
+		throw new Error(error);
+	}
+};
 
-module.exports = batch
+export default batch;
