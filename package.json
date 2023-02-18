@@ -10,7 +10,7 @@
   "license": "MIT",
   "main": "index.js",
   "name": "@lunaticmuch/file-batcher",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "repository": "https://github.com/LunaticMuch/file-batcher",
   "homepage": "https://github.com/LunaticMuch/file-batcher",
   "keywords": [
